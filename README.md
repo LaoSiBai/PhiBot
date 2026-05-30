@@ -19,8 +19,8 @@
 ### 安装
 
 ```bash
-git clone https://github.com/phibot/phibot.git
-cd phibot
+git clone https://github.com/LaoSiBai/PhiBot.git
+cd PhiBot
 ```
 
 ### 配置

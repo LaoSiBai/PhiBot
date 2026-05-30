@@ -10,31 +10,51 @@ import (
 	"github.com/phibot/phibot/internal/logger"
 )
 
+type BotStats struct {
+	LastTPS float64
+}
+
 type Bot struct {
 	Config   *config.Config
 	EventBus *EventBus
 	LLM      llm.Provider
 	history  []llm.Message
+	Stats    BotStats
 }
 
 func New(cfg *config.Config) (*Bot, error) {
-	provider, err := llm.NewOpenAIProvider(cfg.LLM)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create LLM provider: %w", err)
-	}
-
 	b := &Bot{
 		Config:   cfg,
 		EventBus: NewEventBus(),
-		LLM:      provider,
 		history: []llm.Message{
 			{Role: llm.RoleSystem, Content: "你是一个友好的AI助手。"},
 		},
+		Stats: BotStats{},
 	}
+
+	_ = b.initLLM()
 
 	b.EventBus.Subscribe(EventMessageReceive, b.handleMessage)
 
 	return b, nil
+}
+
+func (b *Bot) initLLM() error {
+	if b.Config.LLM.APIKey == "" || b.Config.LLM.APIKey == "sk-your-api-key-here" {
+		b.LLM = nil
+		return nil
+	}
+	provider, err := llm.NewOpenAIProvider(b.Config.LLM)
+	if err != nil {
+		b.LLM = nil
+		return err
+	}
+	b.LLM = provider
+	return nil
+}
+
+func (b *Bot) ReloadLLM() error {
+	return b.initLLM()
 }
 
 func (b *Bot) handleMessage(event Event) {
@@ -44,6 +64,14 @@ func (b *Bot) handleMessage(event Event) {
 
 	msg := event.Message
 	logger.Info("received message", "from", msg.SenderName, "content", msg.Content)
+
+	if b.LLM == nil {
+		b.EventBus.Publish(Event{
+			Type: EventError,
+			Data: fmt.Errorf("LLM 未配置，请先在设置页面填写 API Key"),
+		})
+		return
+	}
 
 	b.history = append(b.history, llm.Message{
 		Role:    llm.RoleUser,
@@ -62,6 +90,10 @@ func (b *Bot) handleMessage(event Event) {
 	}
 
 	var fullResponse string
+	var firstChunkTime time.Time
+	var isFirst = true
+	var charCount int
+
 	for chunk := range stream {
 		if chunk.Err != nil {
 			logger.Error("stream chunk error", "err", chunk.Err)
@@ -70,11 +102,28 @@ func (b *Bot) handleMessage(event Event) {
 		if chunk.Done {
 			break
 		}
+		
+		if isFirst && chunk.Content != "" {
+			firstChunkTime = time.Now()
+			isFirst = false
+		}
+		
+		charCount += len([]rune(chunk.Content))
 		fullResponse += chunk.Content
+		
 		b.EventBus.Publish(Event{
 			Type: EventStreamChunk,
 			Data: chunk.Content,
 		})
+	}
+
+	if !isFirst {
+		duration := time.Since(firstChunkTime).Seconds()
+		if duration > 0 {
+			// 粗略估算：平均 1 个字符约合 1.2 个 Token（中英文混合近似）
+			tokens := float64(charCount) * 1.2
+			b.Stats.LastTPS = tokens / duration
+		}
 	}
 
 	b.history = append(b.history, llm.Message{
@@ -106,4 +155,14 @@ func (b *Bot) SendMessage(msg *Message) {
 		Type:    EventMessageReceive,
 		Message: msg,
 	})
+}
+
+func (b *Bot) GetHistory() []llm.Message {
+	return b.history
+}
+
+func (b *Bot) ClearHistory() {
+	b.history = []llm.Message{
+		{Role: llm.RoleSystem, Content: "你是一个友好的AI助手。"},
+	}
 }

@@ -1,66 +1,38 @@
 package tui
 
-import (
-	"github.com/charmbracelet/lipgloss"
-)
+import "github.com/charmbracelet/lipgloss"
 
 var (
-	AppStyle = lipgloss.NewStyle().
-			Padding(1, 2)
+	cWhite   = lipgloss.Color("#FFFFFF")
+	cDimGray = lipgloss.Color("#444444")
+	cIceBlue = lipgloss.Color("#89DCEB")
+	cGreen   = lipgloss.Color("#A6E3A1")
+	cError   = lipgloss.Color("#EF4444")
 
-	TitleStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#FFFDF5")).
-			Background(lipgloss.Color("#7D56F4")).
-			Padding(0, 1).
-			Bold(true)
+	StyleLogo = lipgloss.NewStyle().Foreground(cWhite).Bold(true)
 
-	ChatAreaStyle = lipgloss.NewStyle().
-			BorderStyle(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("#7D56F4")).
-			Padding(1, 2).
-			Width(80)
+	StyleMenuHover  = lipgloss.NewStyle().Foreground(cWhite).Bold(true)
+	StyleMenuDim    = lipgloss.NewStyle().Foreground(cDimGray)
+	StyleMenuActive = lipgloss.NewStyle().Foreground(cIceBlue).Bold(true)
 
-	UserMessageStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#04B575")).
-				Bold(true)
+	StyleDivider = lipgloss.NewStyle().Foreground(cDimGray)
 
-	BotMessageStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#7D56F4"))
+	StyleLabel      = lipgloss.NewStyle().Foreground(cDimGray).Width(18)
+	StyleValueHover = lipgloss.NewStyle().Foreground(cWhite)
+	StyleValueDim   = lipgloss.NewStyle().Foreground(cDimGray)
+	StyleValueFocus = lipgloss.NewStyle().Foreground(cWhite).Bold(true)
 
-	SystemMessageStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#FFA500")).
-				Italic(true)
+	StyleChatUserPrefix = lipgloss.NewStyle().Foreground(cDimGray)
+	StyleChatUserText   = lipgloss.NewStyle().Foreground(cWhite)
 
-	InputStyle = lipgloss.NewStyle().
-			BorderStyle(lipgloss.NormalBorder()).
-			BorderForeground(lipgloss.Color("#7D56F4")).
-			Padding(0, 1).
-			Width(80)
+	StyleChatBotPrefix = lipgloss.NewStyle().Foreground(cIceBlue)
+	StyleChatBotText   = lipgloss.NewStyle().Foreground(cDimGray)
 
-	StatusBarStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#FFFDF5")).
-			Background(lipgloss.Color("#3D3D3D")).
-			Padding(0, 1)
+	StyleInputLine = lipgloss.NewStyle().Foreground(cDimGray)
 
-	ErrorStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#FF0000")).
-			Bold(true)
+	StyleFooter = lipgloss.NewStyle().Foreground(cDimGray)
 
-	StreamingIndicatorStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#FFA500")).
-				Italic(true)
-
-	TabActiveStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#FFFDF5")).
-			Background(lipgloss.Color("#7D56F4")).
-			Padding(0, 1).
-			Bold(true)
-
-	TabInactiveStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#888888")).
-				Padding(0, 1)
-
-	DebugHeaderStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#7D56F4")).
-				Bold(true)
+	StyleStatusDot = lipgloss.NewStyle().Foreground(cGreen)
+	StyleBarFilled = lipgloss.NewStyle().Foreground(cIceBlue)
+	StyleBarEmpty  = lipgloss.NewStyle().Foreground(cDimGray)
 )
