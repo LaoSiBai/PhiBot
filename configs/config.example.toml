@@ -1,0 +1,14 @@
+[bot]
+nickname = "PhiBot"
+data_dir = "."
+
+[llm]
+provider = "openai"
+base_url = "https://api.openai.com/v1"
+api_key = "sk-your-api-key-here"
+model = "gpt-4o-mini"
+temperature = 0.7
+max_tokens = 2048
+
+[tui]
+theme = "default"
